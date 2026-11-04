@@ -96,28 +96,51 @@ const neuLaden = () => route();
 
 async function dashboard() {
   const d = await api('GET', '/dashboard');
+  const heute = new Date().toLocaleDateString('de-AT', { weekday: 'long', day: 'numeric', month: 'long' });
+  const band = 'Vertrauen // Sicherheit // Stundenweise // Pulverschnee // Flexibel // Piste frei // ';
   app.innerHTML = `
+    <section class="hero">
+      <div class="hero-innen">
+        <span class="sticker">Dashboard · ${heute}</span>
+        <h1 class="hero-titel">Ski<span class="outline">verleih</span></h1>
+        <p class="hero-text">${d.verfuegbareSki} Paar Ski sind bereit für die Piste.
+          ${d.ueberfaellig ? `<strong>${d.ueberfaellig} Rückgabe(n) überfällig.</strong>` : ''}</p>
+        <button class="btn weiss gross kringel" id="neu">⛷ Jetzt ausleihen</button>
+      </div>
+      <svg class="hero-berge" viewBox="0 0 1440 260" preserveAspectRatio="none" aria-hidden="true">
+        <path class="berg-1" d="M0 260V150l120-70 70 40 150-110 90 60 70-30 160 120 110-80 140 90 90-50 150 100 110-70 180 120v110Z"/>
+        <path class="berg-2" d="M0 260V215l60-14 40 10 70-22 50 16 90-28 60 20 80-16 70 24 110-30 80 22 60-12 120 26 90-18 100 22 80-14 100 20 70-10 80 12 60-8v87Z"/>
+      </svg>
+    </section>
+
+    <div class="band" aria-hidden="true"><div>${band.repeat(4)}</div></div>
+
+    <div class="kennzahlen">
+      <a class="kennzahl" href="#ski"><span class="nr">/1</span><div class="wert">${d.verfuegbareSki}</div><div class="titel">Verfügbare Ski</div></a>
+      <a class="kennzahl blau" href="#ausleihen"><span class="nr">/2</span><div class="wert">${d.ausgelieheneSki}</div><div class="titel">Ausgeliehene Ski</div></a>
+      <a class="kennzahl" href="#ski"><span class="nr">/3</span><div class="wert">${d.gesamtSki}</div><div class="titel">Gesamt Ski</div></a>
+      <a class="kennzahl" href="#personen"><span class="nr">/4</span><div class="wert">${d.personen}</div><div class="titel">Registrierte Personen</div></a>
+    </div>
+
     <div class="karte">
-      <h1>Dashboard</h1>
-      <div class="kennzahlen">
-        <a class="kennzahl g1" href="#ski"><div class="titel">Verfügbare Ski</div><div class="wert">${d.verfuegbareSki}</div></a>
-        <a class="kennzahl g2" href="#ausleihen"><div class="titel">Ausgeliehene Ski</div><div class="wert">${d.ausgelieheneSki}</div></a>
-        <a class="kennzahl g3" href="#ski"><div class="titel">Gesamt Ski</div><div class="wert">${d.gesamtSki}</div></a>
-        <a class="kennzahl g4" href="#personen"><div class="titel">Registrierte Personen</div><div class="wert">${d.personen}</div></a>
+      <div class="karte-kopf">
+        <h2>Auf der Piste</h2>
+        <div class="hinweise">
+          ${d.ueberfaellig ? `<span class="hinweis warn">${d.ueberfaellig} überfällig</span>` : ''}
+          <span class="hinweis info">${d.reservierungen} Reservierung(en)</span>
+        </div>
       </div>
-      <div class="hinweise">
-        ${d.ueberfaellig ? `<span class="hinweis warn">⚠ ${d.ueberfaellig} überfällige Ausleihe(n)</span>` : ''}
-        <span class="hinweis info">📅 ${d.reservierungen} kommende Reservierung(en)</span>
-      </div>
-      <h2>Schnellzugriff</h2>
+      ${ausleihTabelle(d.offen)}
+    </div>
+
+    <section class="schnellzugriff">
+      <h2>Schnell&shy;zugriff</h2>
       <div class="schnell">
         <a class="btn" href="#ski">Ski verwalten</a>
         <a class="btn" href="#personen">Personen verwalten</a>
-        <button class="btn gruen" id="neu">Neue Ausleihe</button>
+        <a class="btn" href="#preise">Preise anpassen</a>
       </div>
-      <h2>Laufende und kommende Ausleihen</h2>
-      ${ausleihTabelle(d.offen)}
-    </div>`;
+    </section>`;
   document.getElementById('neu').onclick = () => neueAusleihe();
   aktionenBinden();
 }
